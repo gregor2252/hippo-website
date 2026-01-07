@@ -18,12 +18,18 @@ export default function NameHippoScreen() {
       return;
     }
 
-    // Сохраняем имя в localStorage
+    // Сохраняем имя и флаг создания гиппопотама
     if (typeof window !== 'undefined') {
       localStorage.setItem('hippoName', name.trim());
+      localStorage.setItem('hasCreatedHippo', 'true');
     }
 
+    // Переходим на главную
     router.push('/(tabs)');
+  };
+
+  const handleBack = () => {
+    router.back(); // Возврат на предыдущий экран
   };
 
   return (
@@ -46,13 +52,23 @@ export default function NameHippoScreen() {
         Example: Bubbles, Moto, River, Happy
       </Text>
 
-      <View style={styles.buttonContainer}>
-        <Button
-          title="Continue"
-          onPress={handleContinue}
-          disabled={!name.trim()}
-          color="#4A90E2"
-        />
+      <View style={styles.buttonRow}>
+        <View style={styles.buttonContainer}>
+          <Button
+            title="Back"
+            onPress={handleBack}
+            color="#666"
+          />
+        </View>
+
+        <View style={styles.buttonContainer}>
+          <Button
+            title="Continue"
+            onPress={handleContinue}
+            disabled={!name.trim()}
+            color="#4A90E2"
+          />
+        </View>
       </View>
 
       <Link href="/(tabs)" style={styles.skipLink}>
@@ -101,9 +117,15 @@ const styles = StyleSheet.create({
     color: '#718096',
     marginBottom: 30,
   },
-  buttonContainer: {
+  buttonRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     width: '100%',
+    gap: 10,
     marginBottom: 15,
+  },
+  buttonContainer: {
+    flex: 1,
   },
   skipLink: {
     marginTop: 20,

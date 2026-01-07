@@ -1,8 +1,23 @@
-// app/onboarding/index.tsx - ЗАМЕНИТЕ СОДЕРЖИМОЕ НА ЭТО:
-import { View, Text, StyleSheet } from 'react-native';
-import { Link } from 'expo-router';
+// app/onboarding/index.tsx
+import { View, Text, StyleSheet, Button } from 'react-native';
+import { Link, useRouter } from 'expo-router';
 
 export default function OnboardingScreen() {
+  const router = useRouter();
+
+  const handleGetStarted = () => {
+    router.push('/onboarding/name');
+  };
+
+  const handleSkip = () => {
+    // Если пропускаем, все равно создаем гиппопотама с именем по умолчанию
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('hippoName', 'Hippo');
+      localStorage.setItem('hasCreatedHippo', 'true');
+    }
+    router.push('/(tabs)');
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Welcome to Hippo Tamagotchi! 🦛</Text>
@@ -12,9 +27,20 @@ export default function OnboardingScreen() {
       <Text style={styles.description}>
         Feed, clean, play with, and care for your hippo to keep it happy and healthy.
       </Text>
-      <Link href="/onboarding/name" style={styles.link}>
-        <Text style={styles.linkText}>Get Started →</Text>
-      </Link>
+
+      <View style={styles.buttonContainer}>
+        <Button
+          title="Get Started →"
+          onPress={handleGetStarted}
+          color="#4A90E2"
+        />
+      </View>
+
+      <Button
+        title="Skip for now"
+        onPress={handleSkip}
+        color="#666"
+      />
     </View>
   );
 }
@@ -47,15 +73,8 @@ const styles = StyleSheet.create({
     color: '#718096',
     lineHeight: 22,
   },
-  link: {
-    backgroundColor: '#4A90E2',
-    paddingVertical: 15,
-    paddingHorizontal: 30,
-    borderRadius: 8,
-  },
-  linkText: {
-    color: 'white',
-    fontSize: 18,
-    fontWeight: '600',
+  buttonContainer: {
+    width: '100%',
+    marginBottom: 15,
   },
 });
