@@ -31,7 +31,7 @@ export default function StatsScreen() {
         hippo.stats.satiety * 0.15 +
         hippo.stats.cleanliness * 0.15 +
         hippo.stats.energy * 0.15 +
-        (100 - hippo.stats.thirst) * 0.10
+        hippo.stats.thirst * 0.10
     );
 
     // Рассчитываем уровень ухода
@@ -287,7 +287,7 @@ export default function StatsScreen() {
                 {/* Советы */}
                 <StatSection title="💡 Советы">
                     <View style={styles.tipsContainer}>
-                        {hippo.stats.thirst > 70 && (
+                        {hippo.stats.thirst < 30 && (
                             <ThemedText style={styles.tip}>💧 Дайте бегемотику воды!</ThemedText>
                         )}
                         {hippo.stats.satiety < 30 && (

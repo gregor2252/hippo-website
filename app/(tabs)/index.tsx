@@ -36,7 +36,7 @@ export default function HomeScreen() {
     if (!hippo) return 'happy';
     const { happiness, satiety, energy, cleanliness, thirst } = hippo.stats;
 
-    if (thirst > 80) return 'thirsty';
+    if (thirst < 20) return 'thirsty';
     if (satiety < 20) return 'hungry';
     if (energy < 15) return 'sleepy';
     if (cleanliness < 25) return 'dirty';
@@ -70,7 +70,7 @@ export default function HomeScreen() {
       <View style={styles.sidebarLeft} />
 
       <View style={styles.centerContainer}>
-        <ImageBackground source={backgroundImage} style={styles.background}>
+        <ImageBackground source={backgroundImage} style={styles.background} resizeMode="stretch">
           {/* НОВЫЙ КОНТЕЙНЕР С МОНЕТАМИ В ПРАВОМ ВЕРХНЕМ УГЛУ */}
           <View style={styles.coinContainer}>
             <ThemedText style={styles.coinText}>💰 {hippo?.coins || 0}</ThemedText>
@@ -123,7 +123,7 @@ export default function HomeScreen() {
               </View>
 
               <View style={styles.buttonWithStats}>
-                <View style={[styles.statBarContainer, { height: Math.max(4, (hippo?.stats.health || 0) * 0.6) }]}>
+                <View style={[styles.statBarContainer, { height: Math.max(4, (hippo?.stats.thirst || 0) * 0.6) }]}>
                   <View style={[styles.statBar, { backgroundColor: '#4CAF50' }]} />
                 </View>
                 <TouchableOpacity style={styles.circleButton} onPress={() => navigateTo('/(tabs)/care')}>
@@ -183,13 +183,16 @@ const styles = StyleSheet.create({
 
   // ===== ЦЕНТРАЛЬНАЯ ОБЛАСТЬ С ФОНОМ =====
   centerContainer: {
+    flex: 1,
     width: '70%',
     position: 'relative', // Для позиционирования контейнера с монетами
+    overflow: 'hidden', // чтобы фон не выходил за пределы
   },
 
   background: {
     flex: 1,
-    resizeMode: 'cover',
+    width: '100%',
+    height: '100%',
   },
 
   // ===== КОНТЕЙНЕР С МОНЕТАМИ =====
@@ -284,7 +287,7 @@ const styles = StyleSheet.create({
   buttonImage: {
     width: 70,
     height: 70,
-    resizeMode: 'contain',
+    resizeMode: 'stretch',
   },
 
   // ===== ПРАВАЯ БОКОВАЯ ПАНЕЛЬ =====

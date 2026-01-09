@@ -181,7 +181,7 @@ export function HippoProvider({ children }: { children: React.ReactNode }) {
             satiety: Math.min(100, (hippo?.stats.satiety || 0) + 30),
             happiness: Math.min(100, (hippo?.stats.happiness || 0) + 10),
             energy: Math.min(100, (hippo?.stats.energy || 0) + 5),
-            thirst: Math.max(0, (hippo?.stats.thirst || 0) + 5),
+            thirst: Math.max(0, (hippo?.stats.thirst || 0) - 5),
         });
 
         // Добавляем монеты за кормление
@@ -244,7 +244,7 @@ export function HippoProvider({ children }: { children: React.ReactNode }) {
             happiness: Math.min(100, (hippo?.stats.happiness || 0) + 20),
             energy: Math.max(0, (hippo?.stats.energy || 0) - 25),
             satiety: Math.max(0, (hippo?.stats.satiety || 0) - 10),
-            thirst: Math.max(0, (hippo?.stats.thirst || 0) + 15),
+            thirst: Math.max(0, (hippo?.stats.thirst || 0) - 15),
         });
 
         // Добавляем монеты за игру
@@ -276,7 +276,7 @@ export function HippoProvider({ children }: { children: React.ReactNode }) {
             energy: Math.min(100, (hippo?.stats.energy || 0) + 50),
             health: Math.min(100, (hippo?.stats.health || 0) + 5),
             satiety: Math.max(0, (hippo?.stats.satiety || 0) - 5),
-            thirst: Math.max(0, (hippo?.stats.thirst || 0) + 10),
+            thirst: Math.max(0, (hippo?.stats.thirst || 0) - 10),
         });
 
         // Добавляем монеты за сон
@@ -303,7 +303,7 @@ export function HippoProvider({ children }: { children: React.ReactNode }) {
         });
 
         updateStats({
-            thirst: Math.max(0, (hippo?.stats.thirst || 0) - 40),
+            thirst: Math.min(100, (hippo?.stats.thirst || 0) + 30),
             health: Math.min(100, (hippo?.stats.health || 0) + 10),
             happiness: Math.min(100, (hippo?.stats.happiness || 0) + 15),
         });
@@ -432,10 +432,10 @@ export function HippoProvider({ children }: { children: React.ReactNode }) {
                     happiness: Math.max(0, prev.stats.happiness - 0.1),
                     cleanliness: Math.max(0, prev.stats.cleanliness - 0.15),
                     energy: Math.min(100, prev.stats.energy + 0.1),
-                    thirst: Math.min(100, prev.stats.thirst + 0.25),
+                    thirst: Math.max(0, prev.stats.thirst - 0.25),
                 };
 
-                if (updatedStats.thirst > 80) {
+                if (updatedStats.thirst < 20) {
                     updatedStats.health = Math.max(0, updatedStats.health - 0.3);
                     updatedStats.happiness = Math.max(0, updatedStats.happiness - 0.2);
                 }
