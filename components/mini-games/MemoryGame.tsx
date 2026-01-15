@@ -1,5 +1,6 @@
 // components/mini-games/MemoryGame.tsx
 import { useHippo } from '@/context/HippoContext';
+import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
     Dimensions,
@@ -19,6 +20,9 @@ const backArrow = require('@/models/icons/games/back_arrow.png');
 const brainIcon = require('@/models/icons/games/brain.png');
 const cardBack = require('@/models/icons/games/cards/back.png');
 const restartIcon = require('@/models/icons/games/restart.png');
+const winImg = require('@/models/icons/stats/win.png');
+const scoreBoardImg = require('@/models/icons/stats/score_board.png');
+const homeIcon = require('@/models/icons/games/home.png');
 
 // Карточки для игры
 const cardImages = [
@@ -55,6 +59,7 @@ const CARD_EMOJIS = [
 
 export default function MemoryGame({ onGameEnd, onClose }: MemoryGameProps) {
     const { updateGameStats } = useHippo();
+    const router = useRouter();
     const [cards, setCards] = useState<Card[]>([]);
     const [moves, setMoves] = useState(0);
     const [matches, setMatches] = useState(0);
@@ -200,6 +205,8 @@ export default function MemoryGame({ onGameEnd, onClose }: MemoryGameProps) {
         const finalScore = calculateScore();
         updateGameStats('memory', finalScore);
         onGameEnd(finalScore);
+        // Переходим на главный экран
+        router.push('/(tabs)');
     };
 
     const formatTime = (seconds: number) => {
@@ -264,49 +271,48 @@ export default function MemoryGame({ onGameEnd, onClose }: MemoryGameProps) {
             {/* Инструкции */}
             {/* Убрали подсказки */}
 
-            {/* Управление */}
-            <View style={styles.controls}>
-                <TouchableOpacity style={styles.restartIconButton} onPress={initializeGame}>
-                    <Image source={restartIcon} style={styles.restartIconImage} />
-                </TouchableOpacity>
-
-                {!gameActive && (
-                    <TouchableOpacity style={styles.finishButton} onPress={handleFinishGame}>
-                        <Text style={styles.finishButtonText}>🏁 Завершить игру</Text>
-                    </TouchableOpacity>
-                )}
-            </View>
-
             {/* Экран завершения игры */}
             {(gameCompleted || !gameActive) && (
                 <View style={styles.gameOverContainer}>
-                    <Text style={styles.gameOverTitle}>
-                        {gameCompleted ? '🎉 Победа!' : '⏰ Время вышло!'}
-                    </Text>
+                    <View style={styles.scoreBoardContainer}>
+                        <Image source={scoreBoardImg} style={styles.scoreBoardImage} />
+                        <View style={styles.gameOverContent}>
+                            <Image source={winImg} style={styles.winImage} />
+                            
+                            <View style={styles.finalStats}>
+                                <Text style={styles.finalStat}>Найдено пар: {matches}/10</Text>
+                                <Text style={styles.finalStat}>Ходов сделано: {moves}</Text>
+                                <Text style={styles.finalStat}>Время осталось: {formatTime(timeLeft)}</Text>
+                            </View>
 
-                    <View style={styles.finalStats}>
-                        <Text style={styles.finalStat}>Найдено пар: {matches}/10</Text>
-                        <Text style={styles.finalStat}>Ходов сделано: {moves}</Text>
-                        <Text style={styles.finalStat}>Время осталось: {formatTime(timeLeft)}</Text>
+                            <Text style={styles.finalScore}>
+                                Итоговый счет: {calculateScore()} очков
+                            </Text>
+
+                            <Text style={styles.rewardText}>
+                                🎁 Награда: {Math.floor(calculateScore() / 20)} дополнительных монет
+                            </Text>
+
+                            <View style={styles.buttonContainer}>
+                                <TouchableOpacity style={styles.iconButton} onPress={initializeGame}>
+                                    <Image source={restartIcon} style={styles.buttonIcon} />
+                                </TouchableOpacity>
+                                
+                                <TouchableOpacity style={styles.iconButton} onPress={handleFinishGame}>
+                                    <Image source={homeIcon} style={styles.buttonIcon} />
+                                </TouchableOpacity>
+                            </View>
+                        </View>
                     </View>
+                </View>
+            )}
 
-                    <Text style={styles.finalScore}>
-                        Итоговый счет: {calculateScore()} очков
-                    </Text>
-
-                    <Text style={styles.rewardText}>
-                        🎁 Награда: {Math.floor(calculateScore() / 20)} дополнительных монет
-                    </Text>
-
-                    <View style={styles.finalButtons}>
-                        <TouchableOpacity style={styles.playAgainButton} onPress={initializeGame}>
-                            <Text style={styles.playAgainText}>Играть снова</Text>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity style={styles.claimButton} onPress={handleFinishGame}>
-                            <Text style={styles.claimButtonText}>Забрать награду</Text>
-                        </TouchableOpacity>
-                    </View>
+            {/* Управление - кнопка restart во время игры */}
+            {gameActive && (
+                <View style={styles.controls}>
+                    <TouchableOpacity style={styles.restartIconButton} onPress={initializeGame}>
+                        <Image source={restartIcon} style={styles.restartIconImage} />
+                    </TouchableOpacity>
                 </View>
             )}
         </ImageBackground>
@@ -322,7 +328,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        padding: 15,
+        padding: 30,
         backgroundColor: 'rgba(0, 0, 0, 0.3)',
         borderBottomLeftRadius: 20,
         borderBottomRightRadius: 20,
@@ -375,7 +381,7 @@ const styles = StyleSheet.create({
         padding: 8,
         gap: 4,
         flex: 1,
-        marginTop: 320,
+        marginTop: 270,
     },
     card: {
         width: (width - 40) / 5 - 4,
@@ -439,29 +445,46 @@ const styles = StyleSheet.create({
     },
     gameOverContainer: {
         position: 'absolute',
-        top: '20%',
-        left: '5%',
-        right: '5%',
-        backgroundColor: '#fff',
-        padding: 15,
-        borderRadius: 15,
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(0, 0, 0, 0.7)',
         alignItems: 'center',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.2,
-        shadowRadius: 4,
-        elevation: 5,
+        justifyContent: 'center',
+        padding: 20,
+        zIndex: 100,
     },
-    gameOverTitle: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        color: '#9B59B6',
-        marginBottom: 10,
-        textAlign: 'center',
-        fontFamily: 'ComicSans',
+    scoreBoardContainer: {
+        width: '100%',
+        maxWidth: 400,
+        aspectRatio: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        position: 'relative',
+    },
+    scoreBoardImage: {
+        position: 'absolute',
+        width: '100%',
+        height: '100%',
+        resizeMode: 'contain',
+    },
+    gameOverContent: {
+        alignItems: 'center',
+        justifyContent: 'flex-start',
+        flex: 1,
+        paddingHorizontal: 20,
+        paddingTop: 30,
+        zIndex: 1,
+    },
+    winImage: {
+        width: 450,
+        height: 120,
+        marginBottom: 50,
+        marginTop: -70,
     },
     finalStats: {
-        marginBottom: 10,
+        marginTop: -50,
         alignItems: 'center',
     },
     finalStat: {
@@ -485,6 +508,40 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         fontWeight: '600',
         fontFamily: 'ComicSans',
+    },
+    buttonContainer: {
+        flexDirection: 'row',
+        gap: 20,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: 120,
+    },
+    iconButton: {
+        width: 100,
+        height: 100,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    buttonIcon: {
+        width: 120,
+        height: 120,
+        resizeMode: 'contain',
+    },
+    menuButton: {
+        backgroundColor: '#6D4C41',
+        paddingHorizontal: 50,
+        paddingVertical: 15,
+        borderRadius: 25,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.3,
+        shadowRadius: 4,
+        elevation: 4,
+    },
+    menuButtonText: {
+        color: 'white',
+        fontSize: 18,
+        fontWeight: 'bold',
     },
     finalButtons: {
         flexDirection: 'row',

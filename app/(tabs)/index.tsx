@@ -25,7 +25,7 @@ const moneyIcon = require('@/models/icons/stats/money.png');
 
 export default function HomeScreen() {
   const router = useRouter();
-  const { hippo, feed, clean, play, sleep, giveWater } = useHippo();
+  const { hippo, feed, clean, play, sleep, giveWater, resetHippo } = useHippo();
   const [hippoName, setHippoName] = useState('Бегемотик');
   const [editingName, setEditingName] = useState('');
   const [backgroundImage, setBackgroundImage] = useState(require('@/screens/Main/real_fon.png'));
@@ -96,6 +96,33 @@ export default function HomeScreen() {
     }
   };
 
+  const handleResetHippo = () => {
+    Alert.alert(
+      '⚠️ Сброс бегемотика',
+      'Вы уверены? Это удалит текущего бегемотика и все его данные.',
+      [
+        {
+          text: 'Отмена',
+          onPress: () => {},
+          style: 'cancel'
+        },
+        {
+          text: 'Сбросить',
+          onPress: async () => {
+            try {
+              await resetHippo();
+              setSettingsModalVisible(false);
+              router.push('/onboarding');
+            } catch (error) {
+              Alert.alert('Ошибка', 'Не удалось сбросить бегемотика');
+            }
+          },
+          style: 'destructive'
+        }
+      ]
+    );
+  };
+
   // ОБНОВЛЕННАЯ ФУНКЦИЯ ДЛЯ КНОПКИ ИГРАТЬ
   const handlePlay = () => {
     // Просто переходим на страницу игр
@@ -127,6 +154,7 @@ export default function HomeScreen() {
                 mood={hippoMood} 
                 size="medium" 
                 age={(hippo.age as unknown as 'child' | 'parent') || 'child'}
+                gender={hippo.gender}
                 costume={hippo.outfit?.costume}
               />
             )}
@@ -241,6 +269,9 @@ export default function HomeScreen() {
                 <ThemedText style={styles.saveButtonText}>Сохранить</ThemedText>
               </TouchableOpacity>
             </View>
+            <TouchableOpacity style={styles.resetButton} onPress={handleResetHippo}>
+              <ThemedText style={styles.resetButtonText}>🔄 Сбросить бегемотика</ThemedText>
+            </TouchableOpacity>
           </View>
         </View>
       </Modal>
@@ -323,7 +354,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     flex: 1,
-    marginTop: 250,
+    marginTop: 220,
     marginBottom: 12,
   },
   // ===== КНОПКИ ДЕЙСТВИЙ =====
@@ -436,6 +467,19 @@ const styles = StyleSheet.create({
     borderColor: '#A65437',
   },
   saveButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#fff',
+  },
+  resetButton: {
+    marginTop: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    backgroundColor: '#FF6B6B',
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  resetButtonText: {
     fontSize: 14,
     fontWeight: '600',
     color: '#fff',

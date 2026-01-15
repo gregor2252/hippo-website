@@ -1,8 +1,10 @@
 // components/mini-games/DiceGuessGame.tsx
 import { useHippo } from '@/context/HippoContext';
+import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
     Dimensions,
+    Image,
     StyleSheet,
     Text,
     TouchableOpacity,
@@ -10,6 +12,12 @@ import {
 } from 'react-native';
 
 const { width } = Dimensions.get('window');
+
+// Импорты картинок
+const winImg = require('@/models/icons/stats/win.png');
+const scoreBoardImg = require('@/models/icons/stats/score_board.png');
+const homeIcon = require('@/models/icons/games/home.png');
+const restartIcon = require('@/models/icons/games/restart.png');
 
 interface DiceGuessGameProps {
     onGameEnd: (score: number) => void;
@@ -21,6 +29,7 @@ const DICE_NUMBERS = [1, 2, 3, 4, 5, 6];
 
 export default function DiceGuessGame({ onGameEnd, onClose }: DiceGuessGameProps) {
     const { updateGameStats } = useHippo();
+    const router = useRouter();
     const [score, setScore] = useState(0);
     const [round, setRound] = useState(1);
     const [totalRounds] = useState(10);
@@ -138,9 +147,11 @@ export default function DiceGuessGame({ onGameEnd, onClose }: DiceGuessGameProps
     };
 
     const handleFinishGame = () => {
-        // Вызывается при нажатии на кнопку "Забрать награду"
+        // Вызывается при нажатии на кнопку "Меню"
         updateGameStats('third', score);
         onGameEnd(score);
+        // Переходим на главный экран
+        router.push('/(tabs)');
     };
 
     return (
@@ -273,14 +284,31 @@ export default function DiceGuessGame({ onGameEnd, onClose }: DiceGuessGameProps
             {/* Экран завершения игры */}
             {gameCompleted && (
                 <View style={styles.gameOverContainer}>
-                    <Text style={styles.gameOverTitle}>🏁 Игра окончена!</Text>
-                    <Text style={styles.finalScore}>Итоговый счет: {score} очков</Text>
-                    <Text style={styles.rewardText}>
-                        🎁 Награда: {Math.floor(score / 2)} дополнительных монет
-                    </Text>
-                    <TouchableOpacity style={styles.playAgainButton} onPress={handleFinishGame}>
-                        <Text style={styles.playAgainText}>Забрать награду</Text>
-                    </TouchableOpacity>
+                    <View style={styles.scoreBoardContainer}>
+                        <Image source={scoreBoardImg} style={styles.scoreBoardImage} />
+                        <View style={styles.gameOverContent}>
+                            <Image source={winImg} style={styles.winImage} />
+                            
+                            <Text style={styles.finalScore}>Итоговый счет: {score} очков</Text>
+                            <Text style={styles.rewardText}>
+                                🎁 Награда: {Math.floor(score / 2)} дополнительных монет
+                            </Text>
+                            
+                            <View style={styles.buttonContainer}>
+                                <TouchableOpacity style={styles.iconButton} onPress={() => {
+                                    setGameActive(true);
+                                    setGameCompleted(false);
+                                    handleEndGame();
+                                }}>
+                                    <Image source={restartIcon} style={styles.buttonIcon} />
+                                </TouchableOpacity>
+                                
+                                <TouchableOpacity style={styles.iconButton} onPress={handleFinishGame}>
+                                    <Image source={homeIcon} style={styles.buttonIcon} />
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </View>
                 </View>
             )}
         </View>
@@ -576,23 +604,47 @@ const styles = StyleSheet.create({
     },
     gameOverContainer: {
         position: 'absolute',
-        top: '25%',
-        left: '10%',
-        right: '10%',
-        backgroundColor: '#fff',
-        padding: 30,
-        borderRadius: 20,
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(0, 0, 0, 0.7)',
         alignItems: 'center',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 5 },
-        shadowOpacity: 0.3,
-        shadowRadius: 10,
-        elevation: 10,
+        justifyContent: 'center',
+        padding: 20,
     },
-    gameOverTitle: {
-        fontSize: 28,
-        fontWeight: 'bold',
-        color: '#6D4C41',
+    scoreBoardContainer: {
+        width: '100%',
+        maxWidth: 400,
+        aspectRatio: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        position: 'relative',
+    },
+    scoreBoardImage: {
+        position: 'absolute',
+        width: '100%',
+        height: '100%',
+        resizeMode: 'contain',
+    },
+    scoreBoardBg: {
+        width: '100%',
+        maxWidth: 400,
+        aspectRatio: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    gameOverContent: {
+        alignItems: 'center',
+        justifyContent: 'flex-start',
+        flex: 1,
+        paddingHorizontal: 20,
+        paddingTop: 30,
+        zIndex: 1,
+    },
+    winImage: {
+        width: 200,
+        height: 80,
         marginBottom: 15,
     },
     finalScore: {
@@ -600,18 +652,7 @@ const styles = StyleSheet.create({
         color: '#FF9800',
         marginBottom: 10,
         fontWeight: '600',
-    },
-    streakBonus: {
-        fontSize: 18,
-        color: '#FF5722',
-        marginBottom: 10,
-        fontWeight: '600',
-    },
-    accuracy: {
-        fontSize: 18,
-        color: '#2196F3',
-        marginBottom: 10,
-        fontWeight: '600',
+        textAlign: 'center',
     },
     rewardText: {
         fontSize: 18,
@@ -619,6 +660,38 @@ const styles = StyleSheet.create({
         marginBottom: 20,
         textAlign: 'center',
         fontWeight: '600',
+    },
+    buttonContainer: {
+        flexDirection: 'row',
+        gap: 20,
+        justifyContent: 'center',
+    },
+    iconButton: {
+        width: 70,
+        height: 70,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    buttonIcon: {
+        width: 100,
+        height: 100,
+        resizeMode: 'contain',
+    },
+    menuButton: {
+        backgroundColor: '#6D4C41',
+        paddingHorizontal: 50,
+        paddingVertical: 15,
+        borderRadius: 25,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.3,
+        shadowRadius: 4,
+        elevation: 4,
+    },
+    menuButtonText: {
+        color: 'white',
+        fontSize: 18,
+        fontWeight: 'bold',
     },
     playAgainButton: {
         backgroundColor: '#6D4C41',

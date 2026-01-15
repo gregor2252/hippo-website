@@ -94,7 +94,7 @@ export interface HippoContextType {
     giveWater: () => void;
     resetHippo: () => void;
     hasCompletedOnboarding: boolean;
-    completeOnboarding: (name: string, gender: HippoGender) => void;
+    completeOnboarding: (name: string, gender: HippoGender, age?: 'child' | 'parent') => void;
     buyItem: (itemId: string) => boolean;
     equipItem: (itemId: string) => void;
     unequipItem: (category: ClothingCategory) => void;

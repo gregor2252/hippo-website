@@ -3,13 +3,13 @@ import { ThemedText } from '@/components/themed-text';
 import { useHippo } from '@/context/HippoContext';
 import { useCallback, useEffect, useState } from 'react';
 import {
-  Alert,
-  Image,
-  ImageBackground,
-  Modal,
-  ScrollView,
-  StyleSheet,
-  View
+    Alert,
+    Image,
+    ImageBackground,
+    Modal,
+    ScrollView,
+    StyleSheet,
+    View
 } from 'react-native';
 // Импорты компонентов
 import EnergyBar from '@/components/mini-games/EnergyBar';
@@ -115,15 +115,6 @@ export default function GamesScreen() {
 
       const coinsBonus = Math.floor(score / 20);
       addCoins(baseCoins + coinsBonus);
-
-      Alert.alert(
-        '🎮 Игра окончена!',
-        `Вы набрали ${score} очков!\n` +
-        `+${Math.round(10 + happinessBonus)} к настроению\n` +
-        `-${game.energyCost}% энергии\n` +
-        `+${baseCoins + coinsBonus} монет`,
-        [{ text: 'Отлично!', style: 'default' }]
-      );
     }
 
     setSelectedGameType(null);

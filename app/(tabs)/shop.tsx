@@ -5,13 +5,13 @@ import { useHippo } from '@/context/HippoContext';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import {
-    Alert,
-    Image,
-    ImageBackground,
-    Modal,
-    StyleSheet,
-    TouchableOpacity,
-    View
+  Alert,
+  Image,
+  ImageBackground,
+  Modal,
+  StyleSheet,
+  TouchableOpacity,
+  View
 } from 'react-native';
 
 const wardrobeBg = require('@/screens/shop/wardrobe.png');
@@ -26,7 +26,7 @@ const categories = [
 ];
 
 const moneyIcon = require('@/models/icons/stats/money.png');
-const restartIcon = require('@/models/icons/games/restart.png');
+const restartIcon = require('@/models/icons/buttons/arrows/left_casual.png');
 
 export default function ShopScreen() {
   const router = useRouter();
@@ -41,17 +41,8 @@ export default function ShopScreen() {
   if (selectedCategory === 'costume') {
     const allItems = getAvailableItems();
     const costumeItems = allItems.filter(item => item.category === 'costume');
-    console.log('=== COSTUME DEBUG ===');
-    console.log('Selected category:', selectedCategory);
-    console.log('Hippo age:', hippo?.age);
-    console.log('All items count:', allItems.length);
-    console.log('Costume items before filter:', costumeItems);
     items = costumeItems.filter(item => !item.ageRestriction || item.ageRestriction === hippo?.age);
-    console.log('Costume items after filter:', items);
-    console.log('Items length:', items.length);
   }
-  
-  console.log('Current category:', selectedCategory, 'Items count:', items.length);
   
   const currentItem = items[currentItemIndex];
   const currentOutfit = hippo?.outfit || {};
@@ -59,7 +50,6 @@ export default function ShopScreen() {
   const isUnlocked = currentItem?.unlocked;
 
   const handleCategoryPress = (categoryId: string) => {
-    console.log('Category pressed:', categoryId);
     setSelectedCategory(categoryId);
     setCurrentItemIndex(0);
   };
@@ -87,9 +77,7 @@ export default function ShopScreen() {
       return;
     }
 
-    console.log('Buying item:', currentItem.id, 'Category:', currentItem.category);
     buyItem(currentItem.id);
-    console.log('After buyItem, hippo.outfit:', hippo?.outfit);
   };
 
   const handleEquipItem = () => {
@@ -124,11 +112,11 @@ export default function ShopScreen() {
         <View style={styles.hippoSection}>
           {hippo && (
             <>
-              {console.log('Shop screen rendering HippoView with outfit:', hippo.outfit)}
               <HippoView 
                 mood="default" 
                 size="medium" 
                 age={(hippo.age as unknown as 'child' | 'parent') || 'child'}
+                gender={hippo.gender}
                 costume={hippo.outfit?.costume}
               />
             </>

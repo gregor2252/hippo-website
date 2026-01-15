@@ -1,24 +1,43 @@
 // app/onboarding/name.tsx - ВЫБОР ИМЕНИ
+import { useHippo } from '@/context/HippoContext';
 import { storage } from '@/utils/storage';
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 export default function NameScreen() {
   const router = useRouter();
+  const { completeOnboarding } = useHippo();
   const [name, setName] = useState('');
+  const [gender, setGender] = useState<'male' | 'female'>('male');
+  const [age, setAge] = useState<'child' | 'parent'>('child');
+
+  // Загружаем сохраненные пол и возраст
+  useEffect(() => {
+    const loadGenderAndAge = async () => {
+      try {
+        const savedGender = await storage.getItem('hippoGender');
+        const savedAge = await storage.getItem('hippoAge');
+        if (savedGender) setGender(savedGender as 'male' | 'female');
+        if (savedAge) setAge(savedAge as 'child' | 'parent');
+      } catch (error) {
+        console.error('Failed to load gender and age:', error);
+      }
+    };
+    loadGenderAndAge();
+  }, []);
 
   const handleContinue = async () => {
     if (!name.trim()) {
       return;
     }
 
-    // Сохраняем имя и отмечаем, что онбординг завершен
+    // Вызываем completeOnboarding из контекста, который сохранит все данные
     try {
-      await Promise.all([
-        storage.setItem('hippoName', name.trim()),
-        storage.setItem('hasCreatedHippo', 'true')
-      ]);
+      completeOnboarding(name.trim(), gender, age);
+      
+      // Отмечаем, что онбординг завершен
+      await storage.setItem('hasCreatedHippo', 'true');
 
       // Переходим на главный экран
       router.replace('/(tabs)');

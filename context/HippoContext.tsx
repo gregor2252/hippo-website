@@ -115,26 +115,24 @@ export function HippoProvider({ children }: { children: React.ReactNode }) {
                     playCount: playCount ? parseInt(playCount) : 0,
                     sleepCount: sleepCount ? parseInt(sleepCount) : 0,
                     waterCount: waterCount ? parseInt(waterCount) : 0,
+                    gameStats: savedGameStats ? JSON.parse(savedGameStats) : initialHippo.gameStats,
                 };
 
                 if (savedStats) {
                     try {
                         const parsedStats = JSON.parse(savedStats);
-                        const parsedGameStats = savedGameStats ? JSON.parse(savedGameStats) : initialHippo.gameStats;
                         setHippo({
                             ...baseHippo,
                             stats: { ...initialStats, ...parsedStats },
-                            gameStats: parsedGameStats
                         });
                     } catch (e) {
                         console.error('Failed to parse saved stats:', e);
                         setHippo(baseHippo);
                     }
                 } else {
-                    const parsedGameStats = savedGameStats ? JSON.parse(savedGameStats) : initialHippo.gameStats;
                     setHippo({
                         ...baseHippo,
-                        gameStats: parsedGameStats
+                        stats: initialStats,
                     });
                 }
             }
@@ -549,24 +547,27 @@ export function HippoProvider({ children }: { children: React.ReactNode }) {
         return () => clearInterval(interval);
     }, [isLoading]);
 
-    const completeOnboarding = useCallback((name: string, gender: HippoGender) => {
+    const completeOnboarding = useCallback((name: string, gender: HippoGender, age?: 'child' | 'parent') => {
         setHippo(prev => {
             const updatedHippo = prev ? {
                 ...prev,
                 name,
-                gender
+                gender,
+                age: age || prev.age
             } : {
                 ...initialHippo,
                 name,
-                gender
+                gender,
+                age: age || 'child'
             };
             Promise.all([
                 storage.setItem('hippoName', name),
                 storage.setItem('hippoGender', gender),
+                storage.setItem('hippoAge', updatedHippo.age),
                 storage.setItem('hasCreatedHippo', 'true'),
                 storage.setItem('hippoStats', JSON.stringify(updatedHippo.stats)),
                 storage.setItem('hippoCoins', updatedHippo.coins.toString()),
-                storage.setItem('hippoAge', updatedHippo.age)
+                storage.setItem('hippoGameStats', JSON.stringify(updatedHippo.gameStats)),
             ]).catch(error => {
                 console.error('Failed to save onboarding data:', error);
             });
@@ -594,6 +595,7 @@ export function HippoProvider({ children }: { children: React.ReactNode }) {
             storage.setItem('hippoPlayCount', newHippo.playCount.toString()),
             storage.setItem('hippoSleepCount', newHippo.sleepCount.toString()),
             storage.setItem('hippoWaterCount', newHippo.waterCount.toString()),
+            storage.setItem('hippoGameStats', JSON.stringify(newHippo.gameStats)),
         ];
         Promise.all(savePromises).catch(error => {
             console.error('Failed to save hippo:', error);
@@ -617,17 +619,12 @@ export function HippoProvider({ children }: { children: React.ReactNode }) {
                 storage.removeItem('hippoPlayCount'),
                 storage.removeItem('hippoSleepCount'),
                 storage.removeItem('hippoWaterCount'),
+                storage.removeItem('hippoGameStats'),
             ]);
 
-            // Затем сбрасываем состояние
-            setHippo(initialHippo);
+            // Затем сбрасываем состояние на начальные значения
+            setHippo({ ...initialHippo });
             setUnlockedItems(new Set());
-
-            // Важно: перезагружаем данные для синхронизации
-            setIsLoading(true);
-            setTimeout(() => {
-                setIsLoading(false);
-            }, 100);
 
         } catch (error) {
             console.error('Failed to reset hippo:', error);

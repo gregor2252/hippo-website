@@ -61,6 +61,7 @@ interface HippoViewProps {
     mood?: 'default' | 'hunger' | 'bath' | 'entertainment' | 'sleep' | 'water';
     size?: 'small' | 'medium' | 'large';
     age?: 'child' | 'parent';
+    gender?: 'male' | 'female';
     costume?: string; // ID костюма (costume_dino, costume_bunny, costume_water)
 }
 
@@ -159,6 +160,7 @@ export default function HippoView({
     mood = 'default',
     size = 'medium',
     age = 'child',
+    gender = 'male',
     costume
 }: HippoViewProps) {
     const imageSource = getMoodImage(mood, age, costume);
@@ -168,7 +170,7 @@ export default function HippoView({
         <View style={styles.container}>
             <Image
                 source={imageSource}
-                style={[styles.image, sizeStyle]}
+                style={[styles.image, sizeStyle, gender === 'female' && styles.flipped]}
                 resizeMode="contain"
             />
         </View>
@@ -182,5 +184,8 @@ const styles = StyleSheet.create({
     },
     image: {
         resizeMode: 'contain',
+    },
+    flipped: {
+        transform: [{ scaleX: -1 }],
     },
 });
