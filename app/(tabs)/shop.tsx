@@ -77,7 +77,12 @@ export default function ShopScreen() {
       return;
     }
 
-    buyItem(currentItem.id);
+    try {
+      buyItem(currentItem.id);
+    } catch (error) {
+      console.error('Error buying item:', error);
+      Alert.alert('Ошибка', 'Не удалось купить предмет');
+    }
   };
 
   const handleEquipItem = () => {
@@ -118,6 +123,8 @@ export default function ShopScreen() {
                 age={(hippo.age as unknown as 'child' | 'parent') || 'child'}
                 gender={hippo.gender}
                 costume={hippo.outfit?.costume}
+                head={hippo.outfit?.head}
+                upper={hippo.outfit?.upper}
               />
             </>
           )}
@@ -391,13 +398,15 @@ const styles = StyleSheet.create({
   itemDisplay: {
     alignItems: 'center',
     marginBottom: 20,
-    paddingVertical: 16,
+    paddingVertical: 24,
     backgroundColor: 'rgba(255, 255, 255, 0.5)',
     borderRadius: 16,
+    minHeight: 180,
   },
   itemEmoji: {
-    fontSize: 64,
+    fontSize: 100,
     marginBottom: 12,
+    lineHeight: 110,
   },
   itemIcon: {
     width: 80,

@@ -9,6 +9,30 @@ const babyEntertainment = require('@/models/baby/casual/entertainment/entertainm
 const babySleep = require('@/models/baby/casual/sleep/sleep.png');
 const babyWater = require('@/models/baby/casual/water/water.png');
 
+// Боксерские перчатки для parent
+const parentBoxingDef = require('@/models/parent/boxing/default.png');
+const parentBoxingHunger = require('@/models/parent/boxing/hunger/hunger.png');
+const parentBoxingBath = require('@/models/parent/boxing/bath/bath.png');
+const parentBoxingEntertainment = require('@/models/parent/boxing/entertainment/entertainment.png');
+const parentBoxingSleep = require('@/models/parent/boxing/sleep/sleep.png');
+const parentBoxingWater = require('@/models/parent/boxing/water/water.png');
+
+// Заячьи ушки для parent
+const parentBunnyHatDef = require('@/models/parent/bunny_hat/default.png');
+const parentBunnyHatHunger = require('@/models/parent/bunny_hat/hunger/hunger.png');
+const parentBunnyHatBath = require('@/models/parent/bunny_hat/bath/bath.png');
+const parentBunnyHatEntertainment = require('@/models/parent/bunny_hat/entertainment/entertainment.png');
+const parentBunnyHatSleep = require('@/models/parent/bunny_hat/sleep/sleep.png');
+const parentBunnyHatWater = require('@/models/parent/bunny_hat/water/water.png');
+
+// Боксерские перчатки + заячьи ушки для parent
+const parentBoxingBunnyDef = require('@/models/parent/boxing + bunny_hat/default.png');
+const parentBoxingBunnyHunger = require('@/models/parent/boxing + bunny_hat/hunger/hunger.png');
+const parentBoxingBunnyBath = require('@/models/parent/boxing + bunny_hat/bath/bath.png');
+const parentBoxingBunnyEntertainment = require('@/models/parent/boxing + bunny_hat/entertainment/entertainment.png');
+const parentBoxingBunnySleep = require('@/models/parent/boxing + bunny_hat/sleep/sleep.png');
+const parentBoxingBunnyWater = require('@/models/parent/boxing + bunny_hat/water/water.png');
+
 // Статические импорты для parent casual
 const parentDefault = require('@/models/parent/casual/default.png');
 const parentHunger = require('@/models/parent/casual/hunger/hunger.png');
@@ -62,11 +86,13 @@ interface HippoViewProps {
     size?: 'small' | 'medium' | 'large';
     age?: 'child' | 'parent';
     gender?: 'male' | 'female';
-    costume?: string; // ID костюма (costume_dino, costume_bunny, costume_water)
+    costume?: string;
+    head?: string;
+    upper?: string;
 }
 
 // Маппинг состояний на картинки
-const getMoodImage = (mood: string, age: string, costume?: string) => {
+const getMoodImage = (mood: string, age: string, costume?: string, head?: string, upper?: string) => {
     const isParent = age === 'parent';
     
     // Если есть костюм, используем спрайты костюма
@@ -127,6 +153,64 @@ const getMoodImage = (mood: string, age: string, costume?: string) => {
         }
     }
     
+    // Проверяем комбинацию боксерских перчаток и заячьих ушек
+    const hasBoxing = upper === 'upper_6'; // Боксерские перчатки
+    const hasBunnyHat = head === 'hat_6'; // Заячьи ушки
+    
+    // Только для взрослых
+    if (isParent) {
+        if (hasBoxing && hasBunnyHat) {
+            switch (mood) {
+                case 'hunger':
+                    return parentBoxingBunnyHunger;
+                case 'bath':
+                    return parentBoxingBunnyBath;
+                case 'entertainment':
+                    return parentBoxingBunnyEntertainment;
+                case 'sleep':
+                    return parentBoxingBunnySleep;
+                case 'water':
+                    return parentBoxingBunnyWater;
+                default:
+                    return parentBoxingBunnyDef;
+            }
+        }
+        
+        if (hasBoxing) {
+            switch (mood) {
+                case 'hunger':
+                    return parentBoxingHunger;
+                case 'bath':
+                    return parentBoxingBath;
+                case 'entertainment':
+                    return parentBoxingEntertainment;
+                case 'sleep':
+                    return parentBoxingSleep;
+                case 'water':
+                    return parentBoxingWater;
+                default:
+                    return parentBoxingDef;
+            }
+        }
+        
+        if (hasBunnyHat) {
+            switch (mood) {
+                case 'hunger':
+                    return parentBunnyHatHunger;
+                case 'bath':
+                    return parentBunnyHatBath;
+                case 'entertainment':
+                    return parentBunnyHatEntertainment;
+                case 'sleep':
+                    return parentBunnyHatSleep;
+                case 'water':
+                    return parentBunnyHatWater;
+                default:
+                    return parentBunnyHatDef;
+            }
+        }
+    }
+    
     // Обычные спрайты (casual)
     switch (mood) {
         case 'hunger':
@@ -161,9 +245,11 @@ export default function HippoView({
     size = 'medium',
     age = 'child',
     gender = 'male',
-    costume
+    costume,
+    head,
+    upper
 }: HippoViewProps) {
-    const imageSource = getMoodImage(mood, age, costume);
+    const imageSource = getMoodImage(mood, age, costume, head, upper);
     const sizeStyle = getSizeStyle(size);
 
     return (

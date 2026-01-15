@@ -102,7 +102,7 @@ export default function StatsScreen() {
                                                 <StatRow icon={moodIcon} label="Настроение" value={Math.round(hippo.stats.happiness)} color="#4ECDC4" scale_size={scale_size} />
                                                 <StatRow icon={cleanIcon} label="Чистота" value={Math.round(hippo.stats.cleanliness)} color="#95E1D3" scale_size={scale_size} />
                                                 <StatRow icon={energyIcon} label="Энергия" value={Math.round(hippo.stats.energy)} color="#FFD966" scale_size={scale_size} />
-                                                <StatRow icon={knowledgeIcon} label="Знания" value={Math.round(hippo.stats.thirst)} color="#87CEEB" scale_size={scale_size} />
+                                                <StatRow icon={knowledgeIcon} label="Жажда" value={Math.round(hippo.stats.thirst)} color="#87CEEB" scale_size={scale_size} />
                                             </View>
                                         </View>
                                     </ImageBackground>

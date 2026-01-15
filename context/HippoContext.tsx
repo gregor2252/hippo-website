@@ -402,27 +402,27 @@ export function HippoProvider({ children }: { children: React.ReactNode }) {
         const item = SHOP_ITEMS.find(i => i.id === itemId);
         if (!item || !hippo) return false;
         if (hippo.coins >= item.price) {
-            // Все изменения в одном setHippo вызове
             setHippo(prev => {
                 if (!prev) return prev;
                 
-                // Вычитаем монеты
                 const updatedCoins = prev.coins - item.price;
-                
-                // Подготавливаем новый outfit
                 const updatedOutfit = { ...prev.outfit };
                 
-                // If it's a costume, remove other items
+                // Если это костюм
                 if (item.category === 'costume') {
+                    // Снимаем все остальные вещи
                     updatedOutfit.head = undefined;
                     updatedOutfit.upper = undefined;
                     updatedOutfit.lower = undefined;
                     updatedOutfit.feet = undefined;
                     updatedOutfit.costume = itemId;
                 } 
-                // If it's a regular item, remove costume
+                // Если это обычная вещь
                 else if (['head', 'upper', 'lower', 'feet'].includes(item.category)) {
-                    updatedOutfit.costume = undefined;
+                    // Если на нас надет костюм, снимаем его
+                    if (updatedOutfit.costume) {
+                        updatedOutfit.costume = undefined;
+                    }
                     updatedOutfit[item.category as keyof HippoOutfit] = itemId;
                 }
                 
@@ -432,7 +432,6 @@ export function HippoProvider({ children }: { children: React.ReactNode }) {
                     outfit: updatedOutfit
                 };
                 
-                // Сохраняем оба изменения
                 storage.setItem('hippoCoins', updatedCoins.toString()).catch(
                     error => console.error('Failed to save coins:', error)
                 );
@@ -443,7 +442,6 @@ export function HippoProvider({ children }: { children: React.ReactNode }) {
                 return updated;
             });
             
-            // Добавляем в разблокированные предметы
             const newUnlockedItems = new Set([...unlockedItems, itemId]);
             setUnlockedItems(newUnlockedItems);
             storage.setItem('unlockedItems', JSON.stringify(Array.from(newUnlockedItems))).catch(
@@ -459,26 +457,27 @@ export function HippoProvider({ children }: { children: React.ReactNode }) {
         const item = SHOP_ITEMS.find(i => i.id === itemId);
         if (!item || !hippo) return;
         
-        // Check if item is unlocked (for manual equipping from wardrobe)
         if (!unlockedItems.has(itemId)) return;
         
         setHippo(prev => {
             if (!prev) return prev;
-            const updatedOutfit = {
-                ...prev.outfit,
-            };
+            const updatedOutfit = { ...prev.outfit };
             
-            // If equipping costume, remove all other items
+            // Если это костюм
             if (item.category === 'costume') {
+                // Снимаем все остальные вещи
                 updatedOutfit.head = undefined;
                 updatedOutfit.upper = undefined;
                 updatedOutfit.lower = undefined;
                 updatedOutfit.feet = undefined;
                 updatedOutfit.costume = itemId;
             } 
-            // If equipping head/upper/lower/feet, ALWAYS remove costume
+            // Если это обычная вещь
             else if (['head', 'upper', 'lower', 'feet'].includes(item.category)) {
-                updatedOutfit.costume = undefined;
+                // Если на нас надет костюм, снимаем его
+                if (updatedOutfit.costume) {
+                    updatedOutfit.costume = undefined;
+                }
                 updatedOutfit[item.category as keyof HippoOutfit] = itemId;
             }
             

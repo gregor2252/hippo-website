@@ -151,11 +151,14 @@ export default function HomeScreen() {
           <View style={styles.hippoContainer}>
             {hippo && (
               <HippoView 
+                key={`${hippo.outfit?.costume}-${hippo.outfit?.head}-${hippo.outfit?.upper}`}
                 mood={hippoMood} 
                 size="medium" 
                 age={(hippo.age as unknown as 'child' | 'parent') || 'child'}
                 gender={hippo.gender}
                 costume={hippo.outfit?.costume}
+                head={hippo.outfit?.head}
+                upper={hippo.outfit?.upper}
               />
             )}
           </View>
